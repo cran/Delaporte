@@ -1,12 +1,12 @@
-d0b142f4e002a8739ce6858513e07c93 *DESCRIPTION
+9a7e1a3eec3733a4abb7dabb8df8bd02 *DESCRIPTION
 b9b765903ad02a7e4c1c40f10ad41750 *NAMESPACE
-698f71cc311e9aec7ced28073dbbfa0b *R/Delaporte.R
+252954a2bae244108db5a87f1e223da9 *R/Delaporte.R
 0397edb9e440cfd693a0dafbe4b3e56d *R/RcppExports.R
-09c9352779a701e4fd1f656ed29439c6 *README.md
-66742e5aceb2940f32e92186ea495851 *inst/NEWS.Rd
+53a70ff6cb30b5df9ebc9122e12f2364 *README.md
+25d81b919f2a3f60bd5576fd7aa8a208 *inst/NEWS.Rd
 38530d62853126d0043e7d662759e357 *man/Delaporte-internal.Rd
 f382b0038d3e1b00b9e3a81692edc42d *man/Delaporte-package.Rd
-d26848b065314607b931c914e06af0eb *man/Delaporte.Rd
+a78c05f8ec7f5b8f8321a9e0c2b2a50a *man/Delaporte.Rd
 1f6bf3260a141a9466b9b7f6fa2ab191 *src/Delaporte.cpp
 b3f86c20b81b51f5162874977d38784d *src/Makevars
 73505498722ad4b07b0ddb3067e92523 *src/Makevars.win

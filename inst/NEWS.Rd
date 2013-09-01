@@ -3,17 +3,24 @@
 
 \title{NEWS file for the \code{\link[=Delaporte-package]{Delaporte} package}}
 
+\section{Changes in version 1.0-1 (2013-09-01)}{
+  \subsection{Updates}{
+    \itemize{
+      \item Update README now that CRAN uses it as well
+      \item Minor grammar and typography tweaks to documentation
+    }
+  }
+}  
 \section{Changes in version 1.0-0 (2013-07-09)}{
   \subsection{New Features}{
     \itemize{
-    \item Added Poisson-negative binomial approximation to quantile and random variate function
+    \item Added Poisson-negative binomial approximation to quantile and random variate functions
       \itemize{
       \item This greatly speeds up calculation for large \eqn{\alpha, \beta}, or \eqn{\lambda}.
       }
     }
   }
 }
-
 \section{Changes in version 0.1-2 (2013-04-10)}{
   \subsection{New Features}{
     \itemize{
