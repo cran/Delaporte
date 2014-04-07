@@ -9,12 +9,12 @@ test_that("ddelap pdelap, and qdelap are working", {
 })
 
 test_that("rdelap generates properly", {
-  DP1 <- rdelap(1e8, alpha = 10, beta = 2, lambda = 10) 
-  DP2 <- rdelap(1e8, alpha = 6, beta = 4, lambda = 6) 
-  DP3 <- rdelap(1e8, alpha = 3, beta = 9, lambda = 3)
-  expect_that((mean(DP1) / 30 - 1) < 1e-4, is_true())
-  expect_that((mean(DP2) / 30 - 1) < 1e-4, is_true())
-  expect_that((mean(DP3) / 30 - 1) < 1e-4, is_true())
+  DP1 <- rdelap(1e7, alpha = 10, beta = 2, lambda = 10) 
+  DP2 <- rdelap(1e7, alpha = 6, beta = 4, lambda = 6) 
+  DP3 <- rdelap(1e7, alpha = 3, beta = 9, lambda = 3)
+  expect_that(abs((mean(DP1) / 30 - 1)) < 1e-3, is_true())
+  expect_that(abs((mean(DP1) / 30 - 1)) < 1e-3, is_true())
+  expect_that(abs((mean(DP1) / 30 - 1)) < 1e-3, is_true())
 })
 
 test_that("MoMdelap works", {
@@ -25,7 +25,7 @@ test_that("MoMdelap works", {
   expect_that(MoM[[3]], equals(7.87800114876508))
 })
 
-context("Errors")
+context("Error Trapping")
 test_that("MoMdelap traps bad parameters", {
   TestData <- c(3,  2, 12, 11,  1,  7,  1,  4,  0, 4)
   expect_that(MoMdelap(TestData), throws_error("Method of moments not appropriate for this data; results include negative parameters."))
