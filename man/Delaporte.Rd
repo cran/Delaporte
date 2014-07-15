@@ -23,11 +23,11 @@ MoMdelap(x)
   \item{q}{vector of quantiles.}
   \item{p}{vector of probabilities.}
   \item{n}{number of observations.}
-  \item{alpha}{the alpha parameter of the gamma portion of the Delaporte distribution.
+  \item{alpha}{vector of alpha parameters of the gamma portion of the Delaporte distribution.
+    Must be strictly positive, but need not be integer. }
+  \item{beta}{vector of beta parameters of the gamma portion of the Delaporte distribution.
     Must be strictly positive, but need not be integer.}
-  \item{beta}{the beta parameter of the gamma portion of the Delaporte distribution.
-    Must be strictly positive, but need not be integer.}
-  \item{lambda}{the lambda parameter of the Poisson portion of the Delaporte distribution.
+  \item{lambda}{vector of lambda parameters of the Poisson portion of the Delaporte distribution.
     Must be strictly positive, but need not be integer.}
   \item{log, log.p}{logical; if TRUE, probabilities p are given as log(p).}
   \item{lower.tail}{logical; if TRUE (default), probabilities are
@@ -41,13 +41,11 @@ MoMdelap(x)
   
 Its cumulative distribution function, \code{pdelap}, is calculated through double summation:
   \deqn{CDF(n) = \sum_{j=0}^n \sum_{i=0}^j\frac{\Gamma(\alpha+i)\beta^i\lambda^{j-i}e^{-\lambda}}{\Gamma(\alpha)i!(1+\beta)^{\alpha+i}(j-i)!}}{CDF(n) = \sum(j=0:n) \sum(i=0:j) [\Gamma(\alpha+i) \beta^i \lambda^(j-i) exp(-\lambda)] / [\Gamma(\alpha) i! (1+\beta)^(\alpha+i) (j-i)!]}
-  for \eqn{n = 0, 1, 2, \ldots}; \eqn{\alpha, \beta, \lambda > 0}. This can be computationally expensive for large \code{alpha}, \code{beta}, and \code{n}. Therefore the function identifies the largest value passed to it and computes a vector of CDF values for all integers up to and including that value. The remaining results are read from this vector, requiring only one double summation instead of \code{length(q)} such summations. 
+  for \eqn{n = 0, 1, 2, \ldots}; \eqn{\alpha, \beta, \lambda > 0}. If only singleton values for the parameters are passed in, the function uses the shortcut of identifying the largest value passed to it, computes a vector of CDF values for all integers up to and including that value, and having the remaining results read from this vector. This requires only one double summation instead of \code{length(q)} such summations. If at least one of the parameters is itself a vector of length greater than 1, the function has to build the double summation for each entry in \code{q}.
   
-The quantile function, \code{qdelap}, has two versions. When \code{exact=TRUE}, the function identifies the largest valid quantile passed to it, and, starting from \eqn{0}, builds a CDF vector until such point as the CDF value exceeds the largest passed quantile. For valid quantiles, the function uses the constructed CDF vector to find the first value for which the CDF is greater than or equal to the passed quantile and returns that value.
-
-However, the above method can take a very long time for large \eqn{\alpha, \beta}, or \eqn{\lambda}. Therefore, when \code{exact=FALSE}, the function takes advantage of the Delaporte's definition as a counting distribution with both a Poisson and negative binomial component. It generates up to \eqn{10^7} variates from a negative binomial distribution with shape \eqn{\alpha} and scale \eqn{\beta}, and up to another \eqn{10^7} variates from a Poisson distribution with the mean \eqn{\lambda}. It then sums the two sets of variates and calls the \code{\link{quantile}} function on the result. Ad-hoc testing indicates that the "exact" option is still significantly faster until \eqn{\alpha\beta + \lambda \approx 5000}{\alpha\beta + \lambda ~ 5000}. Both versions return \code{NaN} for quantiles \eqn{< 0}, \eqn{0} for quantiles \eqn{= 0}, and \code{Inf} for quantiles \eqn{\ge 1}.
+The quantile function, \code{qdelap}, has two versions. When \code{exact=TRUE}, the function builds a CDF vector and the first value for which the CDF is greater than or equal to \code{q} is returned as the quantile. While this procedure is accurate, for sufficiently large \eqn{\alpha, \beta}, or \eqn{\lambda} it can take a very long time . Therefore, when \code{exact=FALSE}, the function takes advantage of the Delaporte's definition as a counting distribution with both a Poisson and negative binomial component. It generates up to \eqn{10^7} variates from a negative binomial distribution with shape \eqn{\alpha} and scale \eqn{\beta} (size = \eqn{\alpha}, mean = \eqn{\alpha\beta}), and the same number of variates from a Poisson distribution with the mean \eqn{\lambda}. It then sums the two sets of variates and calls the \code{\link{quantile}} function on the result. The "exact" method is always more accurate and is also significantly faster for reasonable values of the parameters. Ad-hoc testing indicates that the "exact" method should always be used until \eqn{\alpha\beta + \lambda \approx 5000}{\alpha\beta + \lambda ~ 5000}. Both versions return \code{NaN} for quantiles \eqn{< 0}, \eqn{0} for quantiles \eqn{= 0}, and \code{Inf} for quantiles \eqn{\ge 1}.
   
-The random variate generator, \code{rdelap}, has the same two versions as the quantile function. When \code{exact=TRUE}, it uses inversion and works very similarly to the quantile function, in that a vector of \code{n} uniformly distributed random variates between \eqn{0} and \eqn{1} is generated, a CDF vector is constructed as per the quantile function, and the resulting values are read off of the constructed vector. When \code{exact=FALSE}, the larger of \code{n} or \eqn{10^7} variates from both a Poisson and negative binomial with the appropriate parameters are generated and summed. If \code{n} \eqn{< 10^7}, sampling with replacement is used to generate the \code{n} samples from the pool of \eqn{10^7} pseudo-Delaporte variates.
+The random variate generator, \code{rdelap}, also has multiple versions. When \code{exact=TRUE}, it uses inversion by creating a vector of \code{n} uniformly distributed random variates between \eqn{0} and \eqn{1}. If all the parameters are singletons, a single CDF vector is constructed as per the quantile function, and the entries corresponding to the uniform variates are read off of the constructed vector. If the parameters are themselves vectors, then it passes the entire uniform variate vector to \code{qdelap}, which is slower. When \code{exact=FALSE}, regardless of the length of the parameters, the larger of \code{n} or \eqn{10^7} variates from both a Poisson and negative binomial with the appropriate parameters are generated and summed. If \code{n} \eqn{< 10^7}, sampling with replacement is used to generate the \code{n} samples from the pool of \eqn{10^7} pseudo-Delaporte variates.
 
 \code{MoMdelap} uses the definition of the Delaporte's mean, variance, and skew to calculate the method of moments estimates of \eqn{\alpha}, \eqn{\beta}, and \eqn{\lambda}, which it returns as a numeric vector. This estimate is also a reasonable starting point for maximum likelihood estimation using nonlinear optimizers such as \code{\link{optim}} or \code{\link[nloptr]{nloptr}}. If the data is clustered near 0, there are times when method of moments would result in a negative parameter (usually \eqn{\lambda}). In these cases \code{MoMdelap} will throw an error.
 }
@@ -57,8 +55,8 @@ The random variate generator, \code{rdelap}, has the same two versions as the qu
   Invalid quantiles passed to \code{qdelap} will result in return values of
   \code{NaN} or \code{Inf} as appropriate.
   
-  The length of the result is determined by \code{n} for
-  \code{rdelap}, and is the length of the vector of inputs for the other functions.  
+  The length of the result is determined by \code{x} for \code{ddelap}, \code{q} for \code{pdelap}, \code{p} for \code{qdelap}, and \code{n} for \code{rdelap}. The distributional parameters (\eqn{\alpha, \beta, \lambda}) are recycled as necessary to the length of the result.
+  When using the \code{lower.tail = FALSE} or \code{log / log.p = TRUE} options, some accuracy may be lost at knot points or the tail ends of the  distributions due to the limitations of floating point representation.
 }
 \author{
 Avraham Adler \code{<Avraham.Adler@gmail.com>}
@@ -79,22 +77,19 @@ Avraham Adler \code{<Avraham.Adler@gmail.com>}
 A <- c(0, seq_len(50))
 PMF <- ddelap(A, alpha = 3, beta = 4, lambda = 10)
 CDF <- pdelap(A, alpha = 3, beta = 4, lambda = 10)
-summary(1 - cumsum(PMF) / CDF) #Relative Error
 
 ##Quantile
 A <- seq(0,.95, .05)
 qdelap(A, alpha = 3, beta = 4, lambda = 10)
-qdelap(A, alpha = 3, beta = 4, lambda = 10, exact = FALSE)
 A <- c(-1, A, 1, 2)
 qdelap(A, alpha = 3, beta = 4, lambda = 10)
-qdelap(A, alpha = 3, beta = 4, lambda = 10, exact = FALSE)
 
 ## Compare a Poisson, negative binomial, and three Delaporte distributions with the same mean:
 P <- rpois(25000, 25)                                  ## Will have the tightest spread
-DP1 <- rdelap(25000, alpha = 2, beta = 2, lambda = 21) ## Close to the Poisson
-DP2 <- rdelap(25000, alpha = 3, beta = 4, lambda = 13) ## In between
-DP3 <- rdelap(25000, alpha = 4, beta = 5, lambda = 5)  ## Close to the Negative Binomial
-NB <- rnbinom(25000, size = 5, mu = 25)                ## Will have the widest spread
+DP1 <- rdelap(10000, alpha = 2, beta = 2, lambda = 21) ## Close to the Poisson
+DP2 <- rdelap(10000, alpha = 3, beta = 4, lambda = 13) ## In between
+DP3 <- rdelap(10000, alpha = 4, beta = 5, lambda = 5)  ## Close to the Negative Binomial
+NB <- rnbinom(10000, size = 5, mu = 25)                ## Will have the widest spread
 mean(P);mean(NB);mean(DP1);mean(DP2);mean(DP3)         ## Means should all be near 25
 MoMdelap(DP1);MoMdelap(DP2);MoMdelap(DP3)              ## Estimates should be close to originals
 \dontshow{
