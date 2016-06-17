@@ -2,7 +2,15 @@
 \alias{NEWS}
 \title{NEWS file for the \code{\link[=Delaporte-package]{Delaporte} package}}
 
-\section{Changes in version 2.3-0 (2016-06-02)}{
+\section{Changes in version 2.3.1 (2016-06-16)}{
+  \subsection{Changed}{
+    \itemize{
+      \item Reverted back to 2.2-3 as change to trapping zeros caused serious downstream issues. Will work on more elegant correction shortly (thanks to Mikhail Spivakov, Jonathan Cairns, and Jin-Rui Xu)
+    }
+  }
+}
+
+\section{Changes in version 2.3.0 (2016-06-02)}{
   \subsection{Deprecated}{
     \itemize{
       \item In the next release (\strong{3.0.0}), passing FALSE to \code{exact} in \code{rdelap} and \code{qdelap} will use the method described in section 3.9 of Karlis & Xekalaki (2005) to generate approximately Delaporte random variates much more quickly for large \code{n} and large values of the parameters. However, when implemented, this will break reproduceability even for specifically set seeds. The new code is commented out in the function.
