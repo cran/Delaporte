@@ -1,6 +1,6 @@
 \name{Delaporte-internal}
 
-%% These are the internal C++ functions called by the package
+%% These are the internal C functions called by the package
 \alias{ddelap_C}
 \alias{pdelap_C}
 \alias{qdelap_C}
