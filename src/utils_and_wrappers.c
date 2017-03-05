@@ -1,8 +1,8 @@
 #include <R.h>
 #include <Rinternals.h>
+#include <stdlib.h> // for NULL
 #include <Rmath.h>
-#include <string.h>
-#include <stdint.h>
+#include <R_ext/Rdynload.h>
 
 //  Copyright (c) 2016, Avraham Adler
 //  All rights reserved.
@@ -24,7 +24,7 @@
 void ddelap_f(double *x, int nx, double *a, int na, double *b, int nb, double *l, int nl,
               int *lg, double *ret);
 
-SEXP ddelap_C(SEXP x, SEXP alpha, SEXP beta, SEXP lambda, SEXP lg){
+extern SEXP ddelap_C(SEXP x, SEXP alpha, SEXP beta, SEXP lambda, SEXP lg){
   const int nx = LENGTH(x);
   const int na = LENGTH(alpha);
   const int nb = LENGTH(beta);
@@ -39,7 +39,7 @@ SEXP ddelap_C(SEXP x, SEXP alpha, SEXP beta, SEXP lambda, SEXP lg){
 void pdelap_f(double *q, int nq, double *a, int na, double *b, int nb, double *l, int nl,
               int *lt, int *lg, double *ret);
 
-SEXP pdelap_C(SEXP q, SEXP alpha, SEXP beta, SEXP lambda, SEXP lt, SEXP lg){
+extern SEXP pdelap_C(SEXP q, SEXP alpha, SEXP beta, SEXP lambda, SEXP lt, SEXP lg){
   const int nq = LENGTH(q);
   const int na = LENGTH(alpha);
   const int nb = LENGTH(beta);
@@ -55,8 +55,7 @@ SEXP pdelap_C(SEXP q, SEXP alpha, SEXP beta, SEXP lambda, SEXP lt, SEXP lg){
 void qdelap_f(double *p, int np, double *a, int na, double *b, int nb, double *l, int nl,
               int *lt, int *lg, double *ret);
 
-
-SEXP qdelap_C(SEXP p, SEXP alpha, SEXP beta, SEXP lambda, SEXP lt, SEXP lg){
+extern SEXP qdelap_C(SEXP p, SEXP alpha, SEXP beta, SEXP lambda, SEXP lt, SEXP lg){
   const int np = LENGTH(p);
   const int na = LENGTH(alpha);
   const int nb = LENGTH(beta);
@@ -72,8 +71,7 @@ SEXP qdelap_C(SEXP p, SEXP alpha, SEXP beta, SEXP lambda, SEXP lt, SEXP lg){
 void rdelap_f(int n, double *a, int na, double *b, int nb, double *l, int nl,
               double *ret);
 
-
-SEXP rdelap_C(SEXP n, SEXP alpha, SEXP beta, SEXP lambda){
+extern SEXP rdelap_C(SEXP n, SEXP alpha, SEXP beta, SEXP lambda){
   const int nn = INTEGER(n)[0];
   const int na = LENGTH(alpha);
   const int nb = LENGTH(beta);
@@ -87,7 +85,7 @@ SEXP rdelap_C(SEXP n, SEXP alpha, SEXP beta, SEXP lambda){
 
 void momdelap_f(double *x, int nx, double *ret);
 
-SEXP MoMdelap_C(SEXP x){
+extern SEXP MoMdelap_C(SEXP x){
   const int nx = LENGTH(x);
   SEXP ret;
   PROTECT(ret = allocVector(REALSXP, 3));
@@ -97,28 +95,29 @@ SEXP MoMdelap_C(SEXP x){
 }
 
 void unifrnd_ (int *n, double *x){
-    GetRNGstate();
-    for (int i = 0; i < *n; ++i){
-        *(x + i) = unif_rand();
-    }
-    PutRNGstate();
+  GetRNGstate();
+  for (int i = 0; i < *n; ++i){
+    *(x + i) = unif_rand();
   }
-
-void set_nan_(double *val)
-{
-  // *val = sqrt(-1.0); By Drew Schmidt - 2016
-  int64_t x = 0x7FF0000000000001LL;
-  memcpy((void *) val, (void *) &x, 8);
+  PutRNGstate();
 }
 
-void set_inf_(double *val) {
-  // *val = Inf Based on set_nan
-  int64_t x = 0x7FF0000000000000LL;
-  memcpy((void *) val, (void *) &x, 8);
-}
+static const R_CallMethodDef CallEntries[] = {
+    {"ddelap_C",    (DL_FUNC) &ddelap_C,   5},
+    {"pdelap_C",    (DL_FUNC) &pdelap_C,   6},
+    {"qdelap_C",    (DL_FUNC) &qdelap_C,   6},
+    {"rdelap_C",    (DL_FUNC) &rdelap_C,   4},
+    {"MoMdelap_C",  (DL_FUNC) &MoMdelap_C, 1},
+    {NULL,                    NULL,        0}
+};
 
-void set_neginf_(double *val) {
-  // *val = Neg Inf Based on set_nan
-  int64_t x = 0xFFF0000000000000LL;
-  memcpy((void *) val, (void *) &x, 8);
+void R_init_Delaporte(DllInfo *dll) {
+  R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+  R_useDynamicSymbols(dll, FALSE);
+  
+  R_RegisterCCallable("Delaporte", "ddelap_C",  (DL_FUNC) &ddelap_C);
+  R_RegisterCCallable("Delaporte", "pdelap_C",  (DL_FUNC) &pdelap_C);
+  R_RegisterCCallable("Delaporte", "qdelap_C",  (DL_FUNC) &qdelap_C);
+  R_RegisterCCallable("Delaporte", "rdelap_C",  (DL_FUNC) &rdelap_C);
+  R_RegisterCCallable("Delaporte", "MoMdelap_C",(DL_FUNC) &MoMdelap_C);
 }

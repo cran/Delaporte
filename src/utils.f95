@@ -8,6 +8,7 @@
 !
 ! HISTORY:
 !          Version 1.0: 2016-11-20
+!          Version 1.1: 2017-03-01
 !
 ! LICENSE:
 !   Copyright (c) 2016, Avraham Adler
@@ -34,49 +35,56 @@
 !----------------------------------------------------------------------------------------
 
 module utils
-  use, intrinsic :: iso_c_binding
-  implicit none
+    use, intrinsic :: iso_c_binding, only: c_double
+    implicit none
 
-  real(kind = c_double), parameter :: ONE = 1_c_double
-  real(kind = c_double), parameter :: ZERO = 0_c_double
-  real(kind = c_double), parameter :: EPS = 2.2204460492503131e-16_c_double
-
-  contains
+    real(kind = c_double), parameter :: ZERO = 0._c_double
+    real(kind = c_double), parameter :: HALF = 0.5_c_double
+    real(kind = c_double), parameter :: ONE = 1._c_double
+    real(kind = c_double), parameter :: THREEHALFS = 1.5_c_double
+    real(kind = c_double), parameter :: TWO = 2._c_double
+    real(kind = c_double), parameter :: THREE = 3._c_double
+    real(kind = c_double), parameter :: EPS = 2.2204460492503131e-16_c_double
+    real(kind = c_double), parameter :: NAN = TRANSFER(z'7FF0000000000001', ONE)
+    real(kind = c_double), parameter :: INFTY = TRANSFER(z'7FF0000000000000', ONE)
+  
+contains
 
 !----------------------------------------------------------------------------------------
 ! FUNCTION: log1p
 !
-! DESCRIPTION: GFortran 4.9.3 does not have 1og1p as an intrinsic. This serves as such.
+! DESCRIPTION: Fortran (2003/8) does not have log1p as an intrinsic. This serves as such.
 !----------------------------------------------------------------------------------------
 
+    elemental function log1p(x) result(y)
 
-  elemental function log1p(x) result (y)
-
-    real(kind = c_double), intent(in) :: x
-    real(kind = c_double) :: y, z
+        real(kind = c_double), intent(in) :: x
+        real(kind = c_double) :: y, z
 
 
-    z = x + ONE
-    y = log(z) - ((z - ONE) - x) / z
+        z = x + ONE
+        y = log(z) - ((z - ONE) - x) / z   !Serves to eliminate catastrophic subtraction
 
-  end function log1p
+    end function log1p
   
 !----------------------------------------------------------------------------------------
 ! FUNCTION: Position
 !
-! DESCRIPTION: Returns the position in vector a of greatest number less than x. Used in
-!              singleton versions of pdelap and qdelap.
+! DESCRIPTION: Returns the position in ordered vector 'a' of the smallest number greater
+!              than 'x'. Used in singleton versions of pdelap and qdelap.
 !----------------------------------------------------------------------------------------  
 
-  pure function position(x, a) result (k)
-      real(kind = c_double), intent(in)                :: x
-      real(kind = c_double), intent(in), dimension(:)  :: a
-      integer(kind = c_int)                            :: k
+    pure function position(x, a) result(k)
+    
+        real(kind = c_double), intent(in)                :: x
+        real(kind = c_double), intent(in), dimension(:)  :: a
+        integer                                          :: k
 
-      k = 1
-      do while (a(k) < x)
-          k = k + 1
-      end do
-  end function position
+        k = 1
+        do while (a(k) < x)
+            k = k + 1
+        end do
+        
+    end function position
 
 end module utils

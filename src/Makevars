@@ -11,8 +11,8 @@ all: clean $(SHLIB) cleanup
 
 utils.mod: utils.o
 lgamma.o: utils.mod
-lgamma.mod: lgamma.o
-delaporte.o: utils.mod lgamma.mod
+lgam.mod: lgamma.o
+delaporte.o: utils.mod lgam.mod
 
 $(SHLIB): $(FT_OBJS) delaporte.o $(C_OBJS)
 

@@ -2,22 +2,66 @@
 \alias{NEWS}
 \title{NEWS file for the \code{\link[=Delaporte-package]{Delaporte} package}}
 
-\section{Changes in version 4.0.3 (2017-01-30)}{
+\section{Version 5.0.0 (2017-03-05)}{
   \subsection{Changed}{
     \itemize{
-      \item Emergency fix to address parallel make and other non-gcc issues.
-      \item Versions 4.0.1 & 4.0.2 did not completely address the issues.
+      \item Changed handling of non-integers to be in line with R convention that they have 0 probability instead of being considered the next integer. \code{ddelap} will return 0 for each non-integral value and will pass one warning, unlike base R which passes one warning per non-integral value. \code{qdelap} will just return the value for the last integer and no warnings, similar to base R.
+      \item Use bit-representation of NaN and INF to remove need to call C for setting these values. This allows the log-gamma, and singleton d/p/qdelap functions to be elemental.
+      \item Changed registration of the C SEXP functions seen by the package to use \code{R_CallMethodDef} as now preferred by CRAN.
+      \item Explicitly listed the five C SEXP functions seen by the package as R_RegisterCCallable for potential downstream package use.
+      \item Corrected some prose in documentation page.
+      \item Older NEWS entries refactored for accuracy.
+    }
+  }
+  \subsection{Fixed}{
+    \itemize{
+      \item Removed \code{colClasses = 'double'} from tests. This should solve Sun Sparc issues.
+      \item Explicitly cast \code{n} as an integer in loggamma routine. This should suppres warning on OSX mavericks.
+    }
+  }
+  \subsection{Removed}{
+    \itemize{
+      \item Older implementation of \code{qdelap} and \code{rdelap} approximations is now defunct. Only the new faster approximation based on section 3.9 of Karlis & Xekalaki (2005) remains. The next minor version may remove the \code{.Defunct} calls and the references to the old version in the documentation.
+      \item Removed \code{colClasses = 'double'} from tests. This should solve Sun Sparc issues.
+    }
+  }
+  \subsection{Added}{
+    \itemize{
+      \item Specified, clarified, and added many more unit tests.
     }
   }
 }
 
-\section{Changes in version 4.0.0 (2017-01-29)}{
+\section{Version 4.0.3 (2017-01-30)}{
   \subsection{Changed}{
     \itemize{
-      \item Back end code ported from C++ & Rcpp to Fortran and C. In most cases this alone showed an increase in speed. There should be no noticeable difference in results. Even random numbers generated with the same seeds should be the same as in previous packages.
-      \item OpenMP calls activated for systems which have it (including GCC 4.9.3 and subsequent) which allows parallel processing of certain loops resulting in further speed increases over and above those supplied by Fortran.
+      \item Back end code ported from C++ & Rcpp to Fortran and C. In most cases this alone showed an increase in speed. There should be no noticeable difference in results. Random numbers generated with the same seeds should be the same as in previous packages.
+      \item OpenMP calls activated for systems which have it which allows parallel processing of certain loops resulting in further speed increases over and above those supplied by Fortran. OpenMP compatibility is approximately version 3.1; no SIMD instructions are used.
       \item License changed from GPL2+/LGPL3+ to BSD-2 clause.
     }
+  }
+  \subsection{Fixed}{
+    \itemize{
+      \item Includes various emergency fixes to address parallel make and other compilation issues in versions 4.0.0--4.0.2.
+    }
+  }
+}
+
+\section{Version 4.0.2 (2017-01-30) [YANKED]}{
+  \itemize{
+    \item Did not build properly on some systems using a parallel make.
+  }
+}
+
+\section{Version 4.0.1 (2017-01-30) [YANKED]}{
+  \itemize{
+    \item Did not build properly on Fedora using Clang.
+  }
+}
+
+\section{Version 4.0.0 (2017-01-29) [YANKED]}{
+  \itemize{
+    \item Did not build properly on various platforms such as Fedora and Solaris
   }
 }
 
@@ -25,18 +69,17 @@
   \subsection{Changed}{
     \itemize{
       \item The distributional functions now return \code{NaN} where the passed \code{alpha}, \code{beta}, or \code{lambda} is close to 0 (less than machine epsilon). Within vectors, valid triplets should still return proper values. The approximate versions of \code{qdelap} and \code{rdelap} do not handle 0 properly, and an error is thrown directing the user to the exact version. Thanks are due to Jonathan Cairns and Jin-Rui Xu for their help in testing.
-      \item Faster versions of the approximate \code{qdelap} and \code{rdelap} have been implemented.
-      
+      }
     }
-  }
   \subsection{Added}{
     \itemize{
+      \item Faster versions of the approximate \code{qdelap} and \code{rdelap} have been implemented.
       \item Tests for near 0 handling on exact version.
       }
     }
   \subsection{Deprecated}{
     \itemize{
-      \item The old approximation versions of \code{qdelap} and \code{rdelap} can still be used by passing \code{oldapprox = TRUE}. This will be removed eventually.
+      \item The old approximation versions of \code{qdelap} and \code{rdelap} can still be used by passing \code{old = TRUE}. This will be removed eventually.
     }
   }
 }
