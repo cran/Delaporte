@@ -2,6 +2,18 @@
 \alias{NEWS}
 \title{NEWS file for the \code{\link[=Delaporte-package]{Delaporte} package}}
 
+\section{Version 6.3.0 (2018-11-21)}{
+  \subsection{Added}{
+    \itemize{
+      \item Added "cleanzeros" function that zaps to 0 any value less or equal to EPS. See \href{https://bitbucket.org/aadler/delaporte/issues/1/negative-p-values-in-pdelap}{Issue #1} (Thanks Kipper Fletez-Brant).
+      \item Test for zeros. Using call submitted in \href{https://bitbucket.org/aadler/delaporte/issues/1/negative-p-values-in-pdelap}{Issue #1} (Thanks Kipper Fletez-Brant).
+      \item Added items to README to comply with \href{https://bestpractices.coreinfrastructure.org/en}{CII} best practices and added badge.
+      \item Added various badges to README
+      \item Added copyright and license information inside R source code file
+    }
+  }
+}
+
 \section{Version 6.2.0 (2018-06-22)}{
   \subsection{Added}{
     \itemize{
