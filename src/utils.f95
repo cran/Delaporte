@@ -1,4 +1,4 @@
-!----------------------------------------------------------------------------------------
+!-------------------------------------------------------------------------------
 !
 ! MODULE: Utils
 !
@@ -40,7 +40,6 @@
 !   POSSIBILITY OF SUCH DAMAGE.
 !-------------------------------------------------------------------------------
 
-
 module utils
     use, intrinsic :: iso_c_binding, only: c_double
     implicit none
@@ -67,7 +66,6 @@ contains
         real(kind = c_double), intent(in) :: x
         real(kind = c_double) :: y, z
 
-
         z = x + ONE
         y = log(z) - ((z - ONE) - x) / z   !Eliminates catastrophic subtraction
 
@@ -93,23 +91,4 @@ contains
         
     end function position
     
-!-------------------------------------------------------------------------------
-! FUNCTION: CleanZeros
-!
-! DESCRIPTION: Takes values <= EPS and sets them to ZERO
-!-------------------------------------------------------------------------------
-
-    elemental function cleanzeros(x) result(y)
-    
-        real(kind = c_double), intent(in)                :: x
-        real(kind = c_double)                            :: y
-        
-        if (abs(x) <= EPS) then
-            y = ZERO
-        else
-            y = x
-        end if
-        
-    end function cleanzeros
-
 end module utils
