@@ -16,6 +16,8 @@
 !                       tail. See Issue #1
 !          Version 1.4: 2018-12-10
 !                       Cleanzeros removed in favor of floor & ceiling of 0 & 1
+!          Version 1.5: 2021-01-03
+!                       Added parameter for pdelap max vector size
 !
 ! LICENSE:
 !   Copyright (c) 2016, Avraham Adler
@@ -44,6 +46,7 @@
 
 module utils
     use, intrinsic :: iso_c_binding, only: c_double
+    use, intrinsic :: iso_fortran_env
     implicit none
 
     real(kind = c_double), parameter :: ZERO = 0._c_double
@@ -53,6 +56,8 @@ module utils
     real(kind = c_double), parameter :: TWO = 2._c_double
     real(kind = c_double), parameter :: THREE = 3._c_double
     real(kind = c_double), parameter :: EPS = 2.2204460492503131e-16_c_double
+    integer, parameter               :: MAXVECSIZE = 16384
+    real(kind = c_double), parameter :: MAXD = REAL(HUGE(1_INT64), c_double)
 
 contains
 
@@ -77,7 +82,7 @@ contains
 ! FUNCTION: Position
 !
 ! DESCRIPTION: Returns the position in ordered vector 'a' of the smallest number
-!              greater than 'x'. Used in singleton versions of pdelap and qdelap
+!              greater than 'x'. Used in singleton version of qdelap.
 !-------------------------------------------------------------------------------
 
     pure function position(x, a) result(k)

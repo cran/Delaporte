@@ -2,6 +2,35 @@
 \alias{NEWS}
 \title{NEWS file for the Delaporte package}
 
+\section{Version 8.0.0 (2021-01-05)}{
+  \subsection{Changed}{
+    \itemize{
+      \item Exact code more in line with R defaults for d/p/q/r functions in
+      that \code{NaN} inputs return \code{NaN} outputs
+      \item Handling of \code{Inf} and \code{-Inf} now more in line with R
+      defaults for d/p/q/r functions
+      \item Parameter errors now check for \eqn{< 0} instead of \code{< EPS}
+      \item \code{ddelap} and \code{pdelap} now use 8-byte integers (INT64) for
+      their counters so allow calculation for values up to \eqn{2^63}
+      \itemize{
+        \item \code{ddelap} will return 0 for all values \eqn{> 2^63} under the
+        assumption that the pmf is spread too thinly.
+        \item \code{pdelap} will not run for values \eqn{> 2^63}
+        \item \code{ddelap} of \code{Inf} returns 0 and \code{pdelap} of
+        \code{Inf} returns 1
+      }
+      \item \code{pdelap} gives a warning for finite values \eqn{> 2^15} as,
+      dependning on the parameters, this may take hours to finish (it's a double
+      summation!). The user has to respond with 'y' for it to continue.
+      \item Updated help and tests
+      \item Allow compiler to use OpenMP SIMD constructs
+      \item Allow using \code{LTO}
+      \item Switched CI from Travis/Appveyor to Github actions (thanks to Jim
+      Hester for his help in fixing the coverage check issue)
+    }
+  }
+}
+
 \section{Version 7.0.5 (2020-11-10)}{
   \subsection{Fixed}{
     \itemize{
@@ -91,8 +120,8 @@
   \subsection{Added}{
     \itemize{
       \item Added \code{cleanzeros} function that zaps to 0 any value less or
-      equal to EPS. (Thanks Kipper Fletez-Brant).
-      \item Test for zeros. (Thanks Kipper Fletez-Brant).
+      equal to EPS (thanks Kipper Fletez-Brant).
+      \item Test for zeros (thanks Kipper Fletez-Brant).
       \item Added items to README to comply with
       \href{https://bestpractices.coreinfrastructure.org/en}{CII}
       best practices and added badge.

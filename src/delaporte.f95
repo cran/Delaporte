@@ -24,6 +24,15 @@
 !          Version 1.6: 2018-12-10
 !                       Replaced zapping with setting min to 0 and max to 1
 !                       as appropriate. Less monkeying with values this way.
+!          Version 2.0: 2021-01-03
+!                       Setting limits as < 0 to be more consistent with R
+!                       defaults for d/p/q/r functions. Returning NaN for NaN
+!                       inputs per R defaults. Trapping for INFTY more
+!                       consistently with base R. Should use ieee_arithmetic
+!                       once current oldrelease gets deprecated and min GCC
+!                       version is > 5. Allowing use of SIMD constructs. Using
+!                       iso_fortran_env for INT64 to allow wider range for
+!                       d/pdelap
 !
 ! LICENSE:
 !   Copyright (c) 2016, Avraham Adler
@@ -52,6 +61,7 @@
 
 module delaporte
     use, intrinsic :: iso_c_binding
+    use, intrinsic :: iso_fortran_env
     !$use omp_lib
     use utils
     use lgam
@@ -74,27 +84,36 @@ contains
 !-------------------------------------------------------------------------------
 
     function ddelap_f_s(x, alpha, beta, lambda) result(pmf)
-
+    !$omp declare simd(ddelap_f_s) uniform(alpha, beta, lambda) inbranch
+    !$omp declare simd(ddelap_f_s) uniform(alpha, beta, lambda) notinbranch
+    
     external set_nan
 
-    real(kind = c_double), intent(in)   :: x, alpha, beta, lambda 
-    real(kind = c_double)               :: pmf                    
-    integer                             :: i, k                   
+    real(kind = c_double), intent(in)   :: x, alpha, beta, lambda
+    real(kind = c_double)               :: pmf, ii, kk
+    integer(INT64)                      :: i, k                   
 
-      if (alpha < EPS .or. beta < EPS .or. lambda < EPS .or. x < ZERO) then
-          call set_nan(pmf)
-      else
-          k = floor(x)
-          pmf = ZERO
-          do i = 0, k
-              pmf = pmf + exp(gamln(alpha + i) + i * log(beta) &
-                        + (k - i) * log(lambda) - lambda &
-                        - gamln(alpha) - gamln(i + ONE) &
-                        - (alpha + i) * log1p(beta) &
-                        - gamln(k - i + ONE))
-          end do
-          pmf = max(min(pmf, ONE), ZERO)          ! Clear floating point errors
-      end if
+        if (alpha <= ZERO .or. beta <= ZERO .or. lambda <= ZERO .or. x < ZERO &
+            .or. alpha /= alpha .or. beta /= beta .or. lambda /= lambda &
+            .or. x /= x) then
+            call set_nan(pmf)
+        else
+            pmf = ZERO
+            k = floor(x, INT64)
+            kk = real(k, c_double)
+            if (x < MAXD .and. x == kk) then
+                !$omp simd private(ii) reduction(+:pmf)
+                do i = 0_INT64, k
+                    ii = real(i, c_double)
+                    pmf = pmf + exp(gamln(alpha + ii) + ii * log(beta) &
+                    + (kk - ii) * log(lambda) - lambda - gamln(alpha) &
+                    - gamln(ii + ONE) - (alpha + ii) * log1p(beta) &
+                    - gamln(kk - ii + ONE))
+                end do
+                !$omp end simd
+            end if
+            pmf = max(min(pmf, ONE), ZERO)        ! Clear floating point errors
+        end if
 
     end function ddelap_f_s
 
@@ -120,17 +139,13 @@ contains
     integer(kind = c_int), intent(in)                :: lg
     integer                                          :: i
 
-        !$omp parallel do default(shared), private(i), schedule(static)
+        !$omp parallel do simd schedule(simd:static)
         do i = 1, nx
-            if (x(i) > floor(x(i))) then
-                pmfv(i) = ZERO
-            else
                 pmfv(i) = ddelap_f_s(x(i), a(mod(i - 1, na) + 1), &
                                      b(mod(i - 1, nb) + 1), &
                                      l(mod(i - 1, nl) + 1))
-            end if
         end do
-        !$omp end parallel do
+        !$omp end parallel do simd
         
         if (lg == 1) then
             pmfv = log(pmfv)
@@ -150,22 +165,31 @@ contains
 !-------------------------------------------------------------------------------
 
     function pdelap_f_s(q, alpha, beta, lambda) result(cdf)
+    !$omp declare simd(pdelap_f_s) uniform(alpha, beta, lambda) inbranch
+    !$omp declare simd(pdelap_f_s) uniform(alpha, beta, lambda) notinbranch
     
     external set_nan
 
     real(kind = c_double)               :: cdf
     real(kind = c_double), intent(in)   :: q, alpha, beta, lambda
-    integer                             :: i, k
+    integer(INT64)                      :: i, k
 
-        if (alpha < EPS .or. beta < EPS .or. lambda < EPS .or. q < ZERO) then
+        if (alpha <= ZERO .or. beta <= ZERO .or. lambda <= ZERO .or. q < ZERO &
+            .or. alpha /= alpha .or. beta /= beta .or. lambda /= lambda &
+            .or. q /= q) then
             call set_nan(cdf)
+        else if (q > HUGE(q)) then
+            cdf = ONE
         else
-            k = floor(q)
+            k = floor(q, INT64)
             cdf = exp(-lambda) / ((beta + ONE) ** alpha)
-            do i = 1, k
+            !$omp simd reduction(+:cdf) 
+            do i = 1_INT64, k
                 cdf = cdf + ddelap_f_s(real(i, c_double), alpha, beta, lambda)
             end do
-            cdf = max(min(cdf, ONE), ZERO)        ! Clear floating point errors
+            !$omp end simd
+        cdf = max(min(cdf, ONE), ZERO)        ! Clear floating point errors
+
         end if
 
     end function pdelap_f_s
@@ -198,8 +222,17 @@ contains
     real(kind = c_double), allocatable, dimension(:) :: singlevec
     integer                                          :: i, k
     
-        if(na == 1 .and. nb == na .and. nl == nb) then
-            if (a(1) < EPS .or. b(1) < EPS .or. l(1) < EPS) then
+        if (na > 1 .or. nb > 1 .or. nl > 1 .or. minval(q) < ZERO .or. &
+            maxval(q) > REAL(MAXVECSIZE, c_double)) then
+            !$omp parallel do simd schedule(simd:static)
+                do i = 1, nq
+                    pmfv(i) = pdelap_f_s(q(i), a(mod(i - 1, na) + 1), &
+                    b(mod(i - 1, nb) + 1), l(mod(i - 1, nl) + 1))
+                end do
+            !$omp end parallel do simd
+        else
+            if (a(1) <= ZERO .or. b(1) <= ZERO .or. l(1) <= ZERO .or. &
+                a(1) /= a(1) .or. b(1) /= b(1) .or. l(1) /= l(1)) then
                 do i = 1, nq
                     call set_nan(pmfv(i))
                 end do
@@ -209,23 +242,15 @@ contains
                 singlevec(1) = exp(-l(1)) / ((b(1) + ONE) ** a(1))
                 do i = 2, k + 1
                     singlevec(i) = singlevec(i - 1) &
-                                   + ddelap_f_s(real(i - 1, c_double), a(1), &
-                                   b(1), l(1))
+                    + ddelap_f_s(real(i - 1, c_double), a(1), b(1), l(1))
                 end do
                 do i = 1, nq
                     k = floor(q(i))
                     pmfv(i) = singlevec(k + 1)
                 end do
                 deallocate(singlevec)
-                pmfv = max(min(pmfv, ONE), ZERO)  ! Clear floating point errors
+                pmfv = max(min(pmfv, ONE), ZERO) ! Clear floating point errors
             end if
-        else
-            !$omp parallel do default(shared), private(i), schedule(static)
-            do i = 1, nq
-                pmfv(i) = pdelap_f_s(q(i), a(mod(i - 1, na) + 1), &
-                b(mod(i - 1, nb) + 1), l(mod(i - 1, nl) + 1))
-            end do
-            !$omp end parallel do
         end if
         
         if (lt == 0) then
@@ -247,6 +272,8 @@ contains
 !-------------------------------------------------------------------------------
 
     function qdelap_f_s(p, alpha, beta, lambda) result(value)
+    !$omp declare simd(qdelap_f_s) uniform(alpha, beta, lambda) inbranch
+    !$omp declare simd(qdelap_f_s) uniform(alpha, beta, lambda) notinbranch
     
     external set_nan
     external set_inf
@@ -254,7 +281,9 @@ contains
     real(kind = c_double), intent(in)   :: p, alpha, beta, lambda
     real(kind = c_double)               :: testcdf, value
 
-        if (alpha <= EPS .or. beta <= EPS .or. lambda <= EPS .or. p < ZERO) then
+        if (alpha <= ZERO .or. beta <= ZERO .or. lambda <= ZERO .or. p < ZERO &
+          .or. alpha /= alpha .or. beta /= beta .or. lambda /= lambda &
+          .or. p /= p) then
             call set_nan(value)
         else if (p >= ONE) then
             call set_inf(value)
@@ -307,7 +336,7 @@ contains
         end if
 
         if(na == 1 .and. nb == na .and. nl == nb) then
-            if (a(1) < EPS .or. b(1) < EPS .or. l(1) < EPS) then
+            if (a(1) <= ZERO .or. b(1) <= ZERO .or. l(1) <= ZERO) then
                 do i = 1, np
                     call set_nan(obsv(i))
                 end do
@@ -339,13 +368,13 @@ contains
                 deallocate(svec)
             end if
         else
-            !$omp parallel do default(shared), private(i), schedule(static)
+            !$omp parallel do simd schedule(simd:static)
             do i = 1, np
                 obsv(i) = qdelap_f_s(p(i), a(mod(i - 1, na) + 1), &
                                      b(mod(i - 1, nb) + 1), &
                                      l(mod(i - 1, nl) + 1))
             end do
-            !$omp end parallel do
+            !$omp end parallel do simd
         end if
 
     end subroutine qdelap_f
@@ -403,6 +432,7 @@ contains
     real(kind = c_double)                              :: nm1, P, Mu_D, M2, M3
     real(kind = c_double)                              :: T1, delta, delta_i, nr
     real(kind = c_double)                              :: Var_D, Skew_D, VmM_D
+    real(kind = c_double)                              :: ii
     integer                                            :: i
 
         nr = real(n, c_double)
@@ -421,19 +451,19 @@ contains
         M2 = ZERO
         M3 = ZERO
         do i = 1, n
+            ii = real(i, c_double)
             delta = obs(i) - Mu_D
-            delta_i = delta / real(i, c_double)
-            T1 = delta * delta_i * (real(i, c_double) - ONE)
+            delta_i = delta / ii
+            T1 = delta * delta_i * (ii - ONE)
             Mu_D = Mu_D + delta_i
-            M3 = M3 + (T1 * delta_i * (real(i, c_double) - TWO) &
-                       - THREE * delta_i * M2)
+            M3 = M3 + (T1 * delta_i * (ii - TWO) - THREE * delta_i * M2)
             M2 = M2 + T1
         end do
         Var_D = M2 / nm1
         Skew_D = P * sqrt(nr) * M3 / (M2 ** THREEHALFS)
         VmM_D = Var_D - Mu_D
-        params(2) = HALF * (Skew_D * (Var_D ** THREEHALFS) - Mu_D - &
-                                      THREE * VmM_D) / VmM_D
+        params(2) = HALF * (Skew_D * (Var_D ** THREEHALFS) - Mu_D - THREE &
+                            * VmM_D) / VmM_D
         params(1) = VmM_D / (params(2) ** 2)
         params(3) = Mu_D - params(1) * params(2)
  
