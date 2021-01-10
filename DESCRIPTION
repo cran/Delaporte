@@ -1,8 +1,8 @@
 Package: Delaporte
 Type: Package
 Title: Statistical Functions for the Delaporte Distribution
-Version: 8.0.0
-Date: 2021-01-05
+Version: 8.0.1
+Date: 2021-01-10
 Authors@R: c(person(given="Avraham", family="Adler", role=c("aut", "cph", "cre"),
     email="Avraham.Adler@gmail.com", comment = c(ORCID = "0000-0002-3039-0703")))
 Description: Provides probability mass, distribution, quantile, random-variate
@@ -23,8 +23,8 @@ Suggests: testthat, covr
 ByteCompile: yes
 NeedsCompilation: yes
 Config/testthat/edition: 3
-Packaged: 2021-01-05 20:56:50 UTC; Parents
+Packaged: 2021-01-10 08:00:56 UTC; Parents
 Author: Avraham Adler [aut, cph, cre] (<https://orcid.org/0000-0002-3039-0703>)
 Maintainer: Avraham Adler <Avraham.Adler@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-01-05 21:30:06 UTC
+Date/Publication: 2021-01-10 23:30:17 UTC
