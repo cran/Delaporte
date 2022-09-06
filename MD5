@@ -1,11 +1,11 @@
-7e496c0b00b00dfbd2ef283eda4df93e *DESCRIPTION
+7c673639f2dae1fa6f5a37dc07884b32 *DESCRIPTION
 e61f7ad42a80fc7fc00d7ab6fd577dec *LICENSE
 c541024d29b2f90e7ff1616f6376efd3 *NAMESPACE
 7eb011a2cba5dc82c66717c1f9997255 *R/Delaporte.R
-e1f043be7fd0c6af9d0c61fb54aafbb0 *README.md
-b50a45eb34ec8decb94c709b89d759c0 *build/partial.rdb
-706534691c1430b9db27bf2b53ef2af0 *inst/CITATION
-fea36071f7954ef3fbddb6952ddd1041 *inst/NEWS.Rd
+694764318523664c6312b2d1a3e17d0b *README.md
+2862a48d8673bdc506fb14f80ca4de13 *build/partial.rdb
+4947660b466bd8bb8291ea46ea709663 *inst/CITATION
+6cd43ab346b7984a3dd32cb64877c371 *inst/NEWS.Rd
 5fbf922ccbaa667ad8e6d1eadd5bde09 *inst/tinytest/RawTest.csv
 4a091f041ccb5ab106ea38af69b15c3d *inst/tinytest/test-citation.r
 67f89952bee5f238d4d0a5cf1fec0eb4 *inst/tinytest/test-ddelap.r
