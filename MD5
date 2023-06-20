@@ -1,11 +1,11 @@
-4bcbec4b67a5bd675d65c5537ca33ca7 *DESCRIPTION
+55c29920916a9360729fabc9852384a7 *DESCRIPTION
 e61f7ad42a80fc7fc00d7ab6fd577dec *LICENSE
 c541024d29b2f90e7ff1616f6376efd3 *NAMESPACE
 5b1fbf672ae000ac00b5d373312fd384 *R/Delaporte.R
-03323b65cd606231c3f6d18b74b40bd9 *README.md
-fad1ef23a3438073730e27f86c0ae5d7 *build/partial.rdb
-78aa05d02b84171052199449115fc679 *inst/CITATION
-7a34f5c83e747716633d775c672a647a *inst/NEWS.Rd
+62447fb118eea02a87a2c50bbce8323a *README.md
+68aa127d9a783537b6cc646cedc785b0 *build/partial.rdb
+72e0e89a6f6ae5613ae7c48a7e0f4ea6 *inst/CITATION
+f780bccad62e9e484921effb092f2cf4 *inst/NEWS.Rd
 5fbf922ccbaa667ad8e6d1eadd5bde09 *inst/tinytest/RawTest.csv
 f7cc6a07720d33202761264b3badf978 *inst/tinytest/test-citation.r
 19d5d13f736131554cccf347e2617002 *inst/tinytest/test-ddelap.r
@@ -17,7 +17,7 @@ f9ea89edbb461fdff54d32d291c3639a *inst/tinytest/test-momdelap.r
 38b184dbbe732f1698dcbd41985d22b6 *man/Delaporte-internal.Rd
 9706c8651379d9c450404de3bceba1e4 *man/Delaporte-package.Rd
 857fb72bee4af954837ef01721fc44b5 *man/Delaporte.Rd
-d17f7b443c677986e63542b7220c2665 *src/Makevars
+8e6b166bc61a14a075cec5474aee3201 *src/Makevars
 6e63a5b5facdd7af731527080266515f *src/delaporte.f95
 fbc565e922b10e011990af085c16d81e *src/utils.f95
 868cca3e0305cfab5f3f696ec63f66b8 *src/utils_and_wrappers.c
