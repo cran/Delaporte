@@ -8,7 +8,8 @@ ddelap <- function(x, alpha, beta, lambda, log = FALSE) {
     warning("Non-integers passed to ddelap. These will have 0 probability.")
   }
   if (log) log_f <- 1L else log_f <- 0L
-  .Call(ddelap_C, x, as.double(alpha), as.double(beta), as.double(lambda), log_f)
+  .Call(ddelap_C, x, as.double(alpha), as.double(beta), as.double(lambda),
+        log_f, getDelapThreads())
 }
 
 pdelap <- function(q, alpha, beta, lambda, lower.tail = TRUE, log.p = FALSE) {
@@ -30,7 +31,7 @@ pdelap <- function(q, alpha, beta, lambda, lower.tail = TRUE, log.p = FALSE) {
   if (lower.tail) lt_f <- 1L else lt_f <- 0L
   if (log.p) lp_f <- 1L else lp_f <- 0L
   .Call(pdelap_C, as.double(q), as.double(alpha), as.double(beta),
-        as.double(lambda), lt_f, lp_f)
+        as.double(lambda), lt_f, lp_f, getDelapThreads())
 }
 
 qdelap <- function(p, alpha, beta, lambda, lower.tail = TRUE, log.p = FALSE,
@@ -42,10 +43,11 @@ qdelap <- function(p, alpha, beta, lambda, lower.tail = TRUE, log.p = FALSE,
   if (exact) {
     if (lower.tail) lt_f <- 1L else lt_f <- 0L
     if (log.p) lp_f <- 1L else lp_f <- 0L
-    QDLAP <- .Call(qdelap_C, p, alpha, beta, lambda, lt_f, lp_f)
+    QDLAP <- .Call(qdelap_C, p, alpha, beta, lambda, lt_f, lp_f,
+                   getDelapThreads())
   } else {
     if (length(alpha) > 1 || length(beta) > 1 || length(lambda) > 1 ||
-        any(is.nan(p)) || anyNA(p)) {
+          any(is.nan(p)) || anyNA(p)) {
       stop("Quantile approximation relies on pooling and is not accurate when",
            "passed vector-valued parameters, NaNs, or NAs. Please use exact",
            "version.")
@@ -89,7 +91,7 @@ rdelap <- function(n, alpha, beta, lambda, exact = TRUE) {
       RDLAP <- rpois(n, lambda = (shiftedGammas + lambda))
     }
   } else {
-    RDLAP <- .Call(rdelap_C, n, alpha, beta, lambda)
+    RDLAP <- .Call(rdelap_C, n, alpha, beta, lambda, getDelapThreads())
   }
   if (any(is.nan(RDLAP))) warning("NaNs produced")
   return(RDLAP)
@@ -104,8 +106,4 @@ MoMdelap <- function(x, type = 2L) { #nolint
          "non-positive parameters.")
   }
   return(moMDLAP)
-}
-
-.onUnload <- function(libpath) {
-  library.dynam.unload("Delaporte", libpath) # nocov
 }

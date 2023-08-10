@@ -1,3 +1,5 @@
 useDynLib(Delaporte, .registration = TRUE)
-exportPattern("^[[:alpha:]]+")
-importFrom(stats, rpois, quantile, rgamma)
+export("ddelap", "pdelap", "qdelap", "rdelap", "MoMdelap", "getDelapThreads",
+       "setDelapThreads")
+importFrom(stats, rpois, quantile, rgamma, na.omit)
+importFrom(parallel, detectCores)
