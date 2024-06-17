@@ -7,9 +7,8 @@ title: Package Delaporte
 [![](http://cranlogs.r-pkg.org/badges/last-month/Delaporte)](https://cran.r-project.org/package=Delaporte)
 [![](https://cranlogs.r-pkg.org/badges/grand-total/Delaporte)](https://cran.r-project.org/package=Delaporte)
 [![R-CMD-check](https://github.com/aadler/Delaporte/workflows/R-CMD-check/badge.svg)](https://github.com/aadler/Delaporte/actions)
-[![Codecov test coverage](https://codecov.io/gh/aadler/Delaporte/branch/master/graph/badge.svg)](https://app.codecov.io/gh/aadler/Delaporte?branch=master)
+[![codecov](https://codecov.io/gh/aadler/Delaporte/branch/master/graph/badge.svg?token=Xjk9GlHTIx)](https://app.codecov.io/gh/aadler/Delaporte)
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/2011/badge)](https://bestpractices.coreinfrastructure.org/projects/2011)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5880051.svg)](https://doi.org/10.5281/zenodo.5880051)
 <!-- badges: end -->
 
 ## Description
@@ -22,7 +21,7 @@ and C. In cases where approximations are sufficient, the quantile and random
 variate generator have the option to use a much faster Poisson-negative binomial
 estimate as opposed to the full Delaporte double summations.
 
-## Acknowledgements
+## Acknowledgment
 The author is grateful to [Drew Schmidt](https://github.com/wrathematics) both
 generally for his writings on R, C++, and Fortran and specifically for help with
 this project.

@@ -26,6 +26,12 @@
 !                       Converted log1p to one based on its Taylor expansion.
 !                       This is also the degree 2 polynomial minimax
 !                       approximation.
+!          Version 3.1: 2024-05-21
+!                       Added pure header to log1p.
+!          Version 4.0: 2024-06-17
+!                       Added imk helper function. A smidgen faster—I'm not sure
+!                       why, perhaps due to pre-compilation in module—and easier
+!                       to read. Turn FP error cleaning into a function.
 !
 ! LICENSE:
 !   Copyright (c) 2016, Avraham Adler
@@ -65,8 +71,8 @@ module utils
     real(kind = c_double), parameter :: TWO = 2._c_double
     real(kind = c_double), parameter :: THREE = 3._c_double
     real(kind = c_double), parameter :: EPS = 2.2204460492503131e-16_c_double
-    integer, parameter               :: MAXVECSIZE = 16384
     real(kind = c_double), parameter :: MAXD = REAL(HUGE(1_INT64), c_double)
+    integer, parameter               :: MAXVECSIZE = 16384
 
 contains
 
@@ -77,7 +83,7 @@ contains
 !              Taylor expansion for small x to reduce relative error.
 !-------------------------------------------------------------------------------
 
-    elemental function log1p(x) result(y)
+    pure elemental function log1p(x) result(y)
 
         real(kind = c_double), intent(in) :: x
         real(kind = c_double) :: y
@@ -120,4 +126,34 @@ contains
     
     end subroutine sOMPT_f    
 
+!-------------------------------------------------------------------------------
+! FUNCTION: imk (i mod k)
+!
+! DESCRIPTION: Calculates mod(i - 1, k) + 1 for vector recyling.
+!-------------------------------------------------------------------------------
+
+    pure elemental function imk(i, k) result(j)
+
+    integer(kind = c_int), intent(in) :: i, k
+    integer(kind = c_int)             :: j
+    
+        j = mod(i - 1, k) + 1
+    
+    end function imk
+    
+!-------------------------------------------------------------------------------
+! FUNCTION: cFPe (clearFPerrors)
+!
+! DESCRIPTION: Restricts solutions to [0, 1] and eliminates spurious FP errors.
+!-------------------------------------------------------------------------------
+
+    pure elemental function cFPe(x) result(y)
+
+    real(kind = c_double), intent(in) :: x
+    real(kind = c_double)             :: y
+    
+        y = max(min(x, ONE), ZERO)
+    
+    end function cFPe
+    
 end module utils
