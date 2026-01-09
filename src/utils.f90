@@ -86,7 +86,7 @@ contains
     pure elemental function log1p(x) result(y)
 
         real(kind = c_double), intent(in) :: x
-        real(kind = c_double) :: y
+        real(kind = c_double)             :: y
 
         if (abs(x) <= 1.e-4_c_double) then
             y = (-x * HALF + ONE) * x
@@ -156,4 +156,4 @@ contains
     
     end function cFPe
     
-end module utils
+end module utils ! # nocov covr doesn't always pick up the end module

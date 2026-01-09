@@ -1,8 +1,8 @@
 Package: Delaporte
 Type: Package
 Title: Statistical Functions for the Delaporte Distribution
-Version: 8.4.2
-Date: 2025-07-17
+Version: 8.4.3
+Date: 2026-01-08
 Authors@R: c(person(given="Avraham", family="Adler", role=c("aut", "cph", "cre"),
     email="Avraham.Adler@gmail.com", comment = c(ORCID = "0000-0002-3039-0703")))
 Description: Provides probability mass, distribution, quantile, random-variate
@@ -25,9 +25,9 @@ NeedsCompilation: yes
 UseLTO: yes
 SystemRequirements: A version of Fortran supporting the LOG_GAMMA
         Intrinsic and the ieee_arithmetic module.
-Packaged: 2025-07-17 05:08:16 UTC; Parents
+Packaged: 2026-01-08 17:51:31 UTC; Parents
 Author: Avraham Adler [aut, cph, cre] (ORCID:
     <https://orcid.org/0000-0002-3039-0703>)
 Maintainer: Avraham Adler <Avraham.Adler@gmail.com>
 Repository: CRAN
-Date/Publication: 2025-07-17 05:30:02 UTC
+Date/Publication: 2026-01-09 09:31:23 UTC

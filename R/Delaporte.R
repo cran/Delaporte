@@ -71,7 +71,7 @@ qdelap <- function(p, alpha, beta, lambda, lower.tail = TRUE, log.p = FALSE,
       QDLAP <- as.vector(c(qNeg, q0, qValid, qInf), mode = "double")
   }
   if (any(is.nan(QDLAP))) warning("NaNs produced")
-  return(QDLAP)
+  QDLAP
 }
 
 rdelap <- function(n, alpha, beta, lambda, exact = TRUE) {
@@ -91,10 +91,10 @@ rdelap <- function(n, alpha, beta, lambda, exact = TRUE) {
     RDLAP <- rpois(n, lambda = (shiftedGammas + lambda))
   }
   if (any(is.nan(RDLAP))) warning("NaNs produced")
-  return(RDLAP)
+  RDLAP
 }
 
-MoMdelap <- function(x, type = 2L) { #nolint
+MoMdelap <- function(x, type = 2L) { # nolint object_name_linter
   type <- as.integer(type)
   if (!(type %in% c(1L, 2L, 3L))) stop("Skew type must be one of 1, 2, or 3.")
   moMDLAP <- .Call(MoMdelap_C, as.double(x), type)
@@ -102,5 +102,5 @@ MoMdelap <- function(x, type = 2L) { #nolint
     stop("Method of moments not appropriate for this data; results include ",
          "non-positive parameters.")
   }
-  return(moMDLAP)
+  moMDLAP
 }
